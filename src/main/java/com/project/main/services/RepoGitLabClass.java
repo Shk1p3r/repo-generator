@@ -50,7 +50,7 @@ public class RepoGitLabClass {
     {
         String repoUrl ="https://gitlab.com/"+ config.getUserNameGit()+"/"+repoName;
         File repoDir = new File(config.getPathSave(), repoName);
-        if(!repoDir.exists()) // Если нет в папке
+        if(!repoDir.exists()) // eсли нет в папке
         {
             Git.cloneRepository()
                 .setURI(repoUrl)
@@ -60,7 +60,7 @@ public class RepoGitLabClass {
                 .call();
             return " был создан на локальном диске";
         } 
-        else { // Если есть
+        else { // eсли есть
             try (Git git = Git.open(repoDir)) {
                 git.remoteSetUrl()
                         .setRemoteName("origin")
