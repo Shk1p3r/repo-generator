@@ -1,4 +1,5 @@
-package com.project.main.RestTemplate;
+package com.project.main.restTemplate;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
