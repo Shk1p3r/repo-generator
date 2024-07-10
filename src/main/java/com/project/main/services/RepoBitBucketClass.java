@@ -58,7 +58,7 @@ public class RepoBitBucketClass{
         return repositoryNames;
     }
     public void updateOrCreateAllRepos(String rootDirPath) throws IOException, GitAPIException {
-        List<File> repos = Files.list(Paths.get("C:\\Users\\ASUS\\Desktop\\main\\localGit\\"))
+        List<File> repos = Files.list(Paths.get(config.getPathSave()))
                 .filter(Files::isDirectory)
                 .map(Path::toFile)
                 .toList();

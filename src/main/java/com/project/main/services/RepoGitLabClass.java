@@ -75,14 +75,10 @@ public class RepoGitLabClass {
             return " был обновлен";
         }
     }
-    public void updateAllRepositories() {
+    public void updateAllRepositories() throws IOException, GitAPIException {
         List<String> repositories = getRepositories();
         for (String repoName : repositories) {
-            try {
-                updateRepository( repoName);
-            } catch (IOException | GitAPIException e) {
-                e.printStackTrace();
-            }
+            updateRepository( repoName);
         }
     }
 }

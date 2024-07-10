@@ -31,7 +31,7 @@ public class MainController {
 		List<String> repos =rGLC.getRepositories();
 		if(!repos.isEmpty() && repos!=null)
 		{
-			return "List of repositories on GitLab: \n"+String.join("\n", repos);
+			return "Список репозиториев на GitLab: \n"+String.join("\n", repos);
 		}
 		else{
 			return "";
@@ -43,7 +43,7 @@ public class MainController {
 		List<String> repos =rBBC.getRepositories();
 		if(!repos.isEmpty() && repos!=null)
 		{
-			return "List of repositories on BitBucket: \n"+String.join("\n", repos);
+			return "Список репозиториев на BitBucket: \n"+String.join("\n", repos);
 		}
 		else{
 			return "";
@@ -56,7 +56,7 @@ public class MainController {
 	}
 	@Operation(summary = "Обновить все репозитории", description = "Обновляет репозитории, если они есть на локальном диске или клонирует, если их нет")
 	@PostMapping("/gitlab/updateAll")
-	public String updateAllGitLab() {
+	public String updateAllGitLab() throws GitAPIException, IOException {
 		rGLC.updateAllRepositories();
 		return "Обновлены все репозитории";
 	}
