@@ -27,10 +27,10 @@ public class RepoGitLabService {
     private final ApplicationProperties applicationProperties;
     private final RestTemplate restTemplate;
 
-    @Autowired RepoGitLabService(ApplicationProperties applicationProperties, RestTemplate restTemplate)
-    {
-        this.restTemplate=restTemplate;
-        this.applicationProperties=applicationProperties;
+    @Autowired
+    RepoGitLabService(ApplicationProperties applicationProperties, RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+        this.applicationProperties = applicationProperties;
     }
 
     public List<String> getRepositories() {
@@ -51,31 +51,15 @@ public class RepoGitLabService {
         File repoDir = new File(applicationProperties.getPathSave(), repoName);
         if (!repoDir.exists()) // eсли нет в папке
         {
-            Git.cloneRepository()
-                    .setURI(repoUrl)
-                    .setDirectory(repoDir)
-                    .setCredentialsProvider(applicationProperties.getGitlab().getCredentialsProvider())
-                    .setCloneAllBranches(true).call();
+            Git.cloneRepository().setURI(repoUrl).setDirectory(repoDir).setCredentialsProvider(applicationProperties.getGitlab().getCredentialsProvider()).setCloneAllBranches(true).call();
             return " был создан на локальном диске";
         } else {
             try (Git git = Git.open(repoDir)) {
                 git.remoteSetUrl().setRemoteName("origin").setRemoteUri(new URIish(repoUrl)).call();
 
-                List<String> remoteBranches = git.branchList()
-                        .setListMode(ListBranchCommand.ListMode.REMOTE)
-                        .call()
-                        .stream()
-                        .map(ref -> ref.getName()
-                                .replace("refs/remotes/origin/", ""))
-                        .toList();
+                List<String> remoteBranches = git.branchList().setListMode(ListBranchCommand.ListMode.REMOTE).call().stream().map(ref -> ref.getName().replace("refs/remotes/origin/", "")).toList();
 
-                List<String> localBranches = git.branchList()
-                        .setListMode(ListBranchCommand.ListMode.ALL)
-                        .call()
-                        .stream()
-                        .map(ref -> ref.getName()
-                                .replace("refs/heads/", ""))
-                        .toList();
+                List<String> localBranches = git.branchList().setListMode(ListBranchCommand.ListMode.ALL).call().stream().map(ref -> ref.getName().replace("refs/heads/", "")).toList();
 
                 for (String branch : remoteBranches) {
                     if (!localBranches.contains(branch)) {

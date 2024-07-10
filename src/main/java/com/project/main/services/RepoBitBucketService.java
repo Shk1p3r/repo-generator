@@ -27,8 +27,8 @@ public class RepoBitBucketService {
 
     @Autowired
     public RepoBitBucketService(ApplicationProperties applicationProperties, RestTemplate restTemplate) {
-        this.restTemplate=restTemplate;
-        this.applicationProperties=applicationProperties;
+        this.restTemplate = restTemplate;
+        this.applicationProperties = applicationProperties;
     }
 
 

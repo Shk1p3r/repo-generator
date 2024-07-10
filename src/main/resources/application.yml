@@ -6,6 +6,6 @@ properties:
   bitbucket:
     url: https://api.bitbucket.org/2.0/repositories/
     username: qwerty62806
-    pass: ATBBuKatSapWP75vtnCAZma6bBS786BFEA64
+    pass: ATBBUuEpfkqUkAauBVaxAdf66J3U4E7F9294
     workspace: task_clone
   path_save: C:\Users\ASUS\Desktop\main\localGit
