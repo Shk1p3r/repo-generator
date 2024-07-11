@@ -65,9 +65,9 @@ public class RepoBitBucketService {
     }
 
     public RepoStates updateOrCreateRemoteRepo(RepoStates repoState) throws IOException, GitAPIException {
-        repoState.setRepoName(repoState.getRepoName());
         boolean exists = false;
-        for (RepoStates repo : getRepositories()) {
+        List<RepoStates> list = getRepositories();
+        for (RepoStates repo : list) {
             if (repo.getRepoName().equalsIgnoreCase(repoState.getRepoName())) {
                 exists = true;
                 break;
@@ -84,7 +84,10 @@ public class RepoBitBucketService {
             for (Ref branch : branches) {
                 git.push().setRemote("origin").setRefSpecs(new RefSpec(branch.getName() + ":" + branch.getName())).setCredentialsProvider(applicationProperties.getBitbucket().getCredentialsProvider()).call();
             }
-            repoState.setState("обновлен");
+            if (exists) {
+                repoState.setState("обновлен");
+                exists = false;
+            }
 
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
@@ -108,6 +111,6 @@ public class RepoBitBucketService {
 
         HttpEntity<Map<String, String>> entity = new HttpEntity<>(body, headers);
         restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
-        return new RepoStates("repoName", "создан");
+        return new RepoStates(repoName, "создан");
     }
 }
