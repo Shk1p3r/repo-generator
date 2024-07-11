@@ -32,55 +32,67 @@ public class RepoBitBucketService {
     }
 
 
-    public List<String> getRepositories() {
+    public List<RepoStates> getRepositories() {
         String url = applicationProperties.getBitbucket().getUrl() + applicationProperties.getBitbucket().getWorkspace();
 
         HttpHeaders headers = new HttpHeaders();
         headers.setBasicAuth(applicationProperties.getBitbucket().getUsername(), applicationProperties.getBitbucket().getPass());
         HttpEntity<String> entity = new HttpEntity<>(headers);
         ResponseEntity<JsonNode> response = restTemplate.exchange(url, HttpMethod.GET, entity, JsonNode.class);
-        List<String> repositoryNames = new ArrayList<>();
-
         JsonNode valuesNode = response.getBody().get("values");
+        List<RepoStates> repositories = new ArrayList<>();
+
 
         if (valuesNode != null && valuesNode.isArray()) {
             for (JsonNode repoNode : valuesNode) {
                 JsonNode nameNode = repoNode.get("name");
                 if (nameNode != null) {
-                    repositoryNames.add(nameNode.asText());
+                    repositories.add(new RepoStates(nameNode.asText(),""));
                 }
             }
         }
-        return repositoryNames;
+        return repositories;
     }
 
-    public void updateOrCreateAllRepos() throws IOException, GitAPIException {
+    public List<RepoStates> updateOrCreateAllRepos() throws IOException, GitAPIException {
         List<File> repos = Files.list(Paths.get(applicationProperties.getPathSave())).filter(Files::isDirectory).map(Path::toFile).toList();
-
+        List<RepoStates> statesRepos = new ArrayList<>();
         for (File repoDir : repos) {
             String repoName = repoDir.getName();
-            updateOrCreateRemoteRepo(repoName);
+            statesRepos.add(updateOrCreateRemoteRepo(new RepoStates(repoName, "")));
         }
+        return statesRepos;
     }
 
-    public void updateOrCreateRemoteRepo(String repoName) throws IOException, GitAPIException {
-        if (!getRepositories().contains(repoName.toLowerCase())) {
-            createRepository(repoName);
+    public RepoStates updateOrCreateRemoteRepo(RepoStates repoState) throws IOException, GitAPIException {
+        repoState.setRepoName(repoState.getRepoName());
+        boolean exists = false;
+        for (RepoStates repo : getRepositories()) {
+            if (repo.getRepoName().equalsIgnoreCase(repoState.getRepoName())) {
+                exists = true;
+                break;
+            }
         }
-        File localRepoDir = new File(applicationProperties.getPathSave() + "/" + repoName);
+        if (!exists) {
+            repoState = createRepository(repoState.getRepoName());
+        }
+        File localRepoDir = new File(applicationProperties.getPathSave() + "/" + repoState.getRepoName());
 
         try (Git git = Git.open(localRepoDir)) {
-            git.remoteSetUrl().setRemoteName("origin").setRemoteUri(new URIish("https://bitbucket.org/" + applicationProperties.getBitbucket().getWorkspace() + "/" + repoName)).call();
+            git.remoteSetUrl().setRemoteName("origin").setRemoteUri(new URIish("https://bitbucket.org/" + applicationProperties.getBitbucket().getWorkspace() + "/" + repoState.getRepoName())).call();
             List<Ref> branches = git.branchList().call();
             for (Ref branch : branches) {
                 git.push().setRemote("origin").setRefSpecs(new RefSpec(branch.getName() + ":" + branch.getName())).setCredentialsProvider(applicationProperties.getBitbucket().getCredentialsProvider()).call();
             }
+            repoState.setState("обновлен");
+
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
         }
+        return repoState;
     }
 
-    public void createRepository(String repoName) {
+    public RepoStates createRepository(String repoName) {
         String url = applicationProperties.getBitbucket().getUrl() + applicationProperties.getBitbucket().getWorkspace() + "/" + repoName.toLowerCase();
 
         HttpHeaders headers = new HttpHeaders();
@@ -96,5 +108,6 @@ public class RepoBitBucketService {
 
         HttpEntity<Map<String, String>> entity = new HttpEntity<>(body, headers);
         restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
+        return new RepoStates("repoName", "создан");
     }
 }
