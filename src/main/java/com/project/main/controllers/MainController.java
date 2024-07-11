@@ -26,7 +26,7 @@ public class MainController {
     public MainController(RepoGitLabService repoGitLabService, RepoBitBucketService repoBitBucketService, RepoLocalService repoLocalService) {
         this.repoGitLabService = repoGitLabService;
         this.repoBitBucketService = repoBitBucketService;
-        this.repoLocalService=repoLocalService;
+        this.repoLocalService = repoLocalService;
     }
 
     @Operation(summary = "Получить все репозитории", description = "Возвращает список всех репозиториев из GitLab")
@@ -70,7 +70,7 @@ public class MainController {
     @CrossOrigin(origins = "http://localhost:4200")
     @Operation(summary = "Обновить заданный репозиторий", description = "Обновляет репозиторий, если он есть в BitBucket или создает и пушит каждые ветки, если его нет")
     public RepoStates updateBitBucket(@RequestParam String repoName) throws GitAPIException, IOException {
-        return repoBitBucketService.updateOrCreateRemoteRepo(new RepoStates(repoName,""));
+        return repoBitBucketService.updateOrCreateRemoteRepo(new RepoStates(repoName, ""));
     }
 
     @PostMapping("/bitbucket/updateAll")
@@ -83,8 +83,7 @@ public class MainController {
     @GetMapping("/gitlab/local")
     @CrossOrigin(origins = "http://localhost:4200")
     @Operation(summary = "Получить все локальные репозитории", description = "Получает все репозитории, расположенные в папке на компьютере")
-    public List<RepoStates> getLocalRepos()
-    {
+    public List<RepoStates> getLocalRepos() {
         return repoLocalService.getLocalRepositories();
     }
 

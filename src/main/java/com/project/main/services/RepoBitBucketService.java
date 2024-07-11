@@ -47,7 +47,7 @@ public class RepoBitBucketService {
             for (JsonNode repoNode : valuesNode) {
                 JsonNode nameNode = repoNode.get("name");
                 if (nameNode != null) {
-                    repositories.add(new RepoStates(nameNode.asText(),""));
+                    repositories.add(new RepoStates(nameNode.asText(), ""));
                 }
             }
         }
