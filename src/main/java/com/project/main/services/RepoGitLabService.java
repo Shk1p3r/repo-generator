@@ -3,6 +3,8 @@ package com.project.main.services;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -33,7 +35,7 @@ public class RepoGitLabService {
         this.applicationProperties = applicationProperties;
     }
 
-    public List<String> getRepositories() {
+    public List<RepoStates> getRepositories() {
         String url = applicationProperties.getGitlab().getUrl() + "/users/" + applicationProperties.getGitlab().getUsername() + "/projects";
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + applicationProperties.getGitlab().getToken());
@@ -43,16 +45,25 @@ public class RepoGitLabService {
         });
 
         List<Map<String, Object>> projects = response.getBody();
-        return projects.stream().map(project -> (String) project.get("name")).toList();
+
+        List<RepoStates> repositories = new ArrayList<>();
+
+        if (projects != null) {
+            for (Map<String, Object> project : projects) {
+                String repoName = (String) project.get("name");
+                repositories.add(new RepoStates(repoName, ""));
+            }
+        }
+        return repositories;
     }
 
-    public String updateRepository(String repoName) throws IOException, GitAPIException {
-        String repoUrl = "https://gitlab.com/" + applicationProperties.getGitlab().getUsername() + "/" + repoName;
-        File repoDir = new File(applicationProperties.getPathSave(), repoName);
+    public RepoStates updateRepository(RepoStates repoState) throws IOException, GitAPIException {
+        String repoUrl = "https://gitlab.com/" + applicationProperties.getGitlab().getUsername() + "/" + repoState.getRepoName();
+        File repoDir = new File(applicationProperties.getPathSave(), repoState.getRepoName());
         if (!repoDir.exists()) // eсли нет в папке
         {
             Git.cloneRepository().setURI(repoUrl).setDirectory(repoDir).setCredentialsProvider(applicationProperties.getGitlab().getCredentialsProvider()).setCloneAllBranches(true).call();
-            return " был создан на локальном диске";
+            return new RepoStates(repoState.getRepoName(), "создан");
         } else {
             try (Git git = Git.open(repoDir)) {
                 git.remoteSetUrl().setRemoteName("origin").setRemoteUri(new URIish(repoUrl)).call();
@@ -72,14 +83,17 @@ public class RepoGitLabService {
             } catch (URISyntaxException e) {
                 throw new RuntimeException(e);
             }
-            return " был обновлен";
+            return new RepoStates(repoState.getRepoName(), "обновлен");
         }
     }
 
-    public void updateAllRepositories() throws IOException, GitAPIException {
-        List<String> repositories = getRepositories();
-        for (String repoName : repositories) {
-            updateRepository(repoName);
+    public List<RepoStates> updateAllRepositories() throws IOException, GitAPIException {
+        List<RepoStates> repositories = getRepositories();
+        List<RepoStates> statesRepo = new ArrayList<>();
+        for (int i = 0; i < repositories.size(); i++) {
+            RepoStates repoState = repositories.get(i);
+            statesRepo.add(updateRepository(repoState));
         }
+        return statesRepo;
     }
 }
