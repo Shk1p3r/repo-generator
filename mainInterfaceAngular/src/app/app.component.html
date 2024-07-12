@@ -1,0 +1,26 @@
+<div>
+    <h2>Репозитории на GitLab</h2>
+    <button (click)="loadReposGitLab()">Получить список репозиториев из GitLab</button>
+    <ul>
+        <li *ngFor="let repoStateElement of repoStatesGit">
+            <button (click)="updateGitLabRepoHandler(repoStateElement.repoName)">Обновить</button>
+            {{ repoStateElement.repoName }} <span *ngIf="repoStateElement.state"> - {{ repoStateElement.state }}</span>
+        </li>
+    </ul>
+    <h4>Сохранить репозитории с GitLab в папку на рабочий стол или обновить их содержимое</h4>
+    <button (click)="updateAllGitLabReposHandler()">Выполнить</button>
+  </div>
+  
+  <div>
+    <h2>Репозитории на диске</h2>
+    <button (click)="loadReposLocal()">Получить список локальный репозиториев</button>
+    <ul>
+      <li *ngFor="let repoStateElement of reposStatesLocal">
+        <button (click)="updateBitBucketRepoHandler(repoStateElement.repoName)">Обновить</button>
+        {{ repoStateElement.repoName }} <span *ngIf="repoStateElement.state"> - {{ repoStateElement.state }}</span>
+      </li>
+    </ul>
+    <h4>Загрузить репозитории из папки на рабочем столе на BitBucket или обновить их содержимое</h4>
+    <button (click)="updateAllBitBucketReposHandler()">Выполнить</button>
+  </div>
+  <router-outlet></router-outlet>
