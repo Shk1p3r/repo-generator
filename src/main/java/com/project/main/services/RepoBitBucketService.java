@@ -86,9 +86,9 @@ public class RepoBitBucketService {
             }
             if (exists) {
                 repoState.setState("обновлен");
-                exists = false;
-            }
 
+            }
+            exists = false;
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
         }

@@ -83,15 +83,14 @@ public class RepoGitLabService {
             } catch (URISyntaxException e) {
                 throw new RuntimeException(e);
             }
-            return new RepoStates(repoState.getRepoName(),"обновлен");
+            return new RepoStates(repoState.getRepoName(), "обновлен");
         }
     }
 
     public List<RepoStates> updateAllRepositories() throws IOException, GitAPIException {
         List<RepoStates> repositories = getRepositories();
         List<RepoStates> statesRepo = new ArrayList<>();
-        for(int i =0;i<repositories.size();i++)
-        {
+        for (int i = 0; i < repositories.size(); i++) {
             RepoStates repoState = repositories.get(i);
             statesRepo.add(updateRepository(repoState));
         }
